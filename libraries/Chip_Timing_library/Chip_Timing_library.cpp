@@ -165,7 +165,7 @@ void cellTest::timing_trigger(signed long ts, signed long tpw, signed long th) {
 
   //determine trigger times relative to the negative edge of pulse
   unsigned long elapsed_time;
-  unsigned long pw_trigger_time = 500000;
+  unsigned long pw_trigger_time = 50;
   unsigned long setup_trigger_time = pw_trigger_time - ts;
   unsigned long hold_trigger_time = pw_trigger_time + th;
   unsigned long pw_end_time = pw_trigger_time + tpw;
@@ -192,24 +192,36 @@ void cellTest::timing_trigger(signed long ts, signed long tpw, signed long th) {
     if ((elapsed_time >= setup_trigger_time) && !setup_ran) {
       trigger_setup(final_state);
       setup_ran = true;
+      Serial.print("time elapsed for data line start "); Serial.print(elapsed_time / 1000);
+      Serial.print(" milliseconds");
+      Serial.println();
     }
 
     //trigger the pulse at the trigger time
     if ((elapsed_time >= pw_trigger_time) && !pulse_start) {
       trigger_pulse();
       pulse_start = true;
+      Serial.print("time elapsed for gate line start "); Serial.print(elapsed_time / 1000);
+    Serial.print(" milliseconds");
+    Serial.println();
     }
 
     //trigger hold change after hold time
     if ((elapsed_time >= hold_trigger_time) && !hold_ran) {
       trigger_hold(final_state);
       hold_ran = true;
+      Serial.print("time elapsed for data line end "); Serial.print(elapsed_time / 1000);
+    Serial.print(" milliseconds");
+    Serial.println();
     }
 
     //end pulse after pulse trigger time
     if ((elapsed_time >= pw_end_time) && !pulse_end) {
       end_pulse();
       pulse_end = true;
+      Serial.print("time elapsed for gate line end "); Serial.print(elapsed_time / 1000);
+      Serial.print(" milliseconds");
+      Serial.println();
     }
 
   }

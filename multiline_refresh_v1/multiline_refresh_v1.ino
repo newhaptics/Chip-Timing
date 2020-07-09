@@ -4,20 +4,32 @@
 char response = 'n';
 
 //number of elements to be tested
-const int numElem = 5;
+const int numElem = 10;
 
 
 //elements to be tested
-const int elemTests[numElem][2] = 
-{{0, 0}, {1, 0}, {2, 0}, {3, 0}, {4, 0}};
+const int elemTests[numElem][2] =
+//{{0, 0}, {1, 0}, {2, 0}, {3, 0}, {4, 0}};
+{{0, 0}, {1, 0}, {2, 0}, {3, 0}, {4, 0}, 
+{0, 1}, {1, 1}, {2, 1}, {3, 1}, {4, 1}};
+//{5, 0}, {6, 0}, {7, 0}, {8, 0}, {9, 0}, 
+//{5, 1}, {6, 1}, {7, 1}, {8, 1}, {9, 1}};
 
 //final states
-const int final_states[numElem] = 
-{1, 0, 1, 0, 1};
+const int final_states[numElem] =
+{1, 0, 1, 0, 1, 0, 1, 0, 1, 0};
+//1, 0, 1, 0, 1, 0, 1, 0, 1, 0};
 
 //timing for each element
 const signed long elemTiming[numElem][3] = 
-{{-20, 70, 60}, {-20, 70, 60}, {-20, 70, 60}, {-20, 70, 60}, {-20, 70, 60}};
+//{{-20, 70, 60}, {-20, 70, 60}, {-20, 70, 60}, {-20, 70, 60}, {-20, 70, 60},
+//{-14, 32, 30}, {-10, 33, 30}, {-10, 34, 30}, {-5, 33, 30}, {-15, 37, 30}};
+{{-14, 32, 30}, {-10, 33, 30}, {-10, 34, 30}, {-5, 33, 30}, {-15, 37, 30}, 
+{-14, 32, 30},{-10, 33, 30}, {-10, 34, 30}, {-5, 33, 30}, {-15, 37, 30}};
+//{{-14, 32, 30}, {-10, 33, 30}, {-10, 34, 30}, {-5, 33, 30}, {-15, 37, 30}, 
+//{-14, 32, 30}, {-10, 33, 30}, {-10, 34, 30}, {-5, 33, 30}, {-15, 37, 30},
+//{-14, 32, 30}, {-10, 33, 30}, {-10, 34, 30}, {-5, 33, 30}, {-15, 37, 30},
+//{-14, 32, 30}, {-10, 33, 30}, {-10, 34, 30}, {-5, 33, 30}, {-15, 37, 30}};
 
 // string variables
 char chip_version[] = "M3AR";
@@ -35,6 +47,7 @@ int final_state;
 //create a cellTest object
 cellTest FC(test_row, test_col, final_state);
 
+void multiline_reset();
 void initialize();
 void multiline_test();
 void serialFlush();
@@ -77,13 +90,19 @@ void stream_test() {
 
   enter_to_advance();
 
+  multiline_reset();
+
+  Serial.print("press enter to begin test"); Serial.println();
+
+  enter_to_advance();
+  
   //perform the test
   multiline_test();
 
 
   Serial.print("did the test succeed? y/n");
   while (Serial.available() == 0);
-  response = Serial.parseInt();
+  response = Serial.read();
   serialFlush();
 
   if (response == 'y') {
@@ -121,11 +140,12 @@ void stream_test() {
       Serial.print("_in"); Serial.print(final_state);
       Serial.print("_s"); Serial.print(setup_time);
       Serial.print("_h"); Serial.print(hold_time);
-      Serial.print("_p"); Serial.print(pulse_width); Serial.print("_");
-      Serial.println();
+      Serial.print("_p"); Serial.print(pulse_width);
 
     }
 
+    Serial.print("_");
+    Serial.println();
     Serial.println(F("Encoder: none"));
     Serial.println(F("Quality: doesn't matter"));
     Serial.println(F("Time Limit: 2 seconds"));
@@ -141,17 +161,20 @@ void stream_test() {
     while (test_done == 0) {
 
 
+      multiline_reset();
+      
       Serial.println(F(" --------- "));
-      Serial.println(F("Once you click 'enter' in the Serial Monitor, a countdown from 5 will begin. Press 'Finish' in AmScope on 0."));
+      Serial.println(F("Once you click 'enter' in the Serial Monitor a countdown from 5 will start, Press 'Finish' on 0 in AmScope"));
 
       enter_to_advance();
 
-
-
-      for (int i = 5; i >= 0; i--) {
+      for(int i = 5; i >= 0; i--){
+        delay(100);
         Serial.println(i);
-        multiline_test();
+        delay(500);
       }
+      
+      multiline_test();
 
       delay(2000);
       serialFlush();
@@ -182,9 +205,8 @@ void stream_test() {
 
 }
 
-//multiline test to take the three arrays and use them to activate fluidic elements
 
-void multiline_test() {
+void multiline_reset() {
   Serial.print("press enter to reset all the lines"); Serial.println();
 
   enter_to_advance();
@@ -212,11 +234,16 @@ void multiline_test() {
     FC.reset(0);
 
   }
+}
 
-  Serial.print("press enter to begin test"); Serial.println();
+//multiline test to take the three arrays and use them to activate fluidic elements
 
-  enter_to_advance();
-
+void multiline_test() {
+  unsigned long elapsed_time;
+  unsigned long start_time;
+  unsigned long tot_time = 0;
+ 
+  //start_time = micros();
   //loop through each element of the tests
   for (int i = 0; i < numElem; i++) {
     //assign ts, th, and tpw for the current test as well as current row and final state
@@ -230,17 +257,29 @@ void multiline_test() {
     //assign the test cell to the cellTest object
     FC.testCell(test_row, test_col, final_state);
 
-    Serial.print("Element "); Serial.print(i + 1);
-    Serial.print(" setup "); Serial.print(setup_time);
-    Serial.print(" hold "); Serial.print(hold_time);
-    Serial.print(" pulse width "); Serial.print(pulse_width); Serial.println();
+     Serial.print("Element "); Serial.print(i + 1);
+     Serial.print(" setup "); Serial.print(setup_time / 1000);
+     Serial.print(" hold "); Serial.print(hold_time / 1000);
+     Serial.print(" pulse width "); Serial.print(pulse_width / 1000); Serial.println();
 
     //activate a timing trigger test on that elements
+    start_time = micros();
+    
     FC.timing_trigger(setup_time, pulse_width, hold_time);
+    
+    elapsed_time = micros() - start_time;
+    elapsed_time = elapsed_time / 1000;
+    tot_time = tot_time + elapsed_time;
+    Serial.print("time elapsed for element "); Serial.print(elapsed_time);
+    Serial.print(" milliseconds");
+    Serial.println();
 
-    delay(200);
 
   }
+  Serial.print("time elapsed since test start "); Serial.print(tot_time);
+  Serial.print(" milliseconds");
+  Serial.println();
+
 
 }
 
