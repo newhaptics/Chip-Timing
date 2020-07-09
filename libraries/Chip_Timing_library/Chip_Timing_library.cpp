@@ -1,10 +1,10 @@
 #include "Arduino.h"
 #include "Chip_Timing_library.h"
 
-cellTest::cellTest(char row, char column, char final) {
+cellTest::cellTest(int row, int column, int final_state) {
   this->test_row = row;
   this->test_col = column;
-  this->final_state = final;
+  this->final_state = final_state;
 }
 
 void cellTest::cell_setup(){
@@ -47,7 +47,7 @@ void cellTest::start_chip(){
   }
 }
 
-void cellTest::testCell(char row, char column, char final) {
+void cellTest::testCell(int row, int column, int final) {
   this->test_row = row;
   this->test_col = column;
   this->final_state = final;
@@ -77,7 +77,7 @@ void cellTest::set_all_valves(bool state) {
 
 // --------------- set_valve --------------- //
 // Takes as input valve pair indicated manifold and valve in that manifold
-void cellTest::set_valve(char valve_pair[], bool val) {
+void cellTest::set_valve(byte valve_pair[], bool val) {
   bitWrite(this->valve[valve_pair[0]], 7 - valve_pair[1], val);
   update_valves();
 }
@@ -86,22 +86,22 @@ void cellTest::set_valve(char valve_pair[], bool val) {
 // ---------------- latch and data functions -----------//
 //turns on data of the current cell
 void cellTest::data_on() {
-  set_valve(col[this->test_col], 1);
+  set_valve(col[test_col], 1);
 }
 
 //turns off data of the current cell
 void cellTest::data_off() {
-  set_valve(col[this->test_col], 0);
+  set_valve(col[test_col], 0);
 }
 
 //turns on latch of current cell
 void cellTest::latch_on() {
-  set_valve(row[this->test_row], 1);
+  set_valve(row[test_row], 1);
 }
 
 //turns off latch of current cell
 void cellTest::latch_off() {
-  set_valve(row[this->test_row], 0);
+  set_valve(row[test_row], 0);
 }
 
 // ----------- timing functions ---------//
@@ -181,7 +181,7 @@ void cellTest::timing_trigger(signed long ts, signed long tpw, signed long th) {
   //maybe change? start time after delay
 
   //delay on the front end
-  delay(100);
+  //delay(100);
 
   //wait for time to elapse and trigger elements on the proper times
   while (!(setup_ran && pulse_start && pulse_end && hold_ran)) {
@@ -215,11 +215,11 @@ void cellTest::timing_trigger(signed long ts, signed long tpw, signed long th) {
   }
 
   //delay longer on the backend if the final state is 0
-  if (final_state) {
-    delay(200);
-  } else {
-    delay(600);
-  }
+  // if (final_state) {
+  //   delay(200);
+  // } else {
+  //   delay(600);
+  // }
 
   //all triggers done
   digitalWrite(led, HIGH);
