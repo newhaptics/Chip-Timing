@@ -4,17 +4,17 @@
 char response = 'n';
 
 //number of elements to be tested
-char numElem = 4;
+const int numElem = 5;
 
 
 //elements to be tested
-char elemTests[numElem][2] = {{0,0},{1,0},{2,0},{3,0},{4,0}};
+const int elemTests[numElem][2] = {{0, 0}, {1, 0}, {2, 0}, {3, 0}, {4, 0}};
 
 //final states
-char final_states[numElem] = {0,0,0,0};
+const int final_states[numElem] = {1, 1, 1, 1};
 
 //timing for each element
-char elemTiming[numElem][3] = {{10,10,19}, {10,10,19}, {10,10,19}, {10,10,19}};
+const int elemTiming[numElem][3] = {{100, 100, 40}, {100, 100, 40}, {100, 100, 40}, {100, 100, 40}};
 
 // string variables
 char chip_version[] = "M3AR";
@@ -30,7 +30,12 @@ int test_col = elemTests[0][1];
 int final_state;
 
 //create a cellTest object
-cellTest FC(test_row,test_col,final_state);
+cellTest FC(test_row, test_col, final_state);
+
+void initialize();
+void multiline_test();
+void serialFlush();
+void enter_to_advance();
 
 void setup() {
   TCCR1B = TCCR1B & B11111000 | B00000101; // for PWM frequency of 30.64 Hz
@@ -59,11 +64,11 @@ void stream_test() {
   //display the elements being tested
   Serial.println();
   Serial.print(F("Now testing the following elements "));
-  for(int i = 0; i < numElem; i++) {
+  for (int i = 0; i < numElem; i++) {
     Serial.print("Element "); Serial.print(i);
     Serial.print("in row "); Serial.print(elemTests[i][0]);
     Serial.print("column "); Serial.print(elemTests[i][1]);
-    Serial.print("with a final state of "); Serial.print(final_state[i]); Serial.println();
+    Serial.print("with a final state of "); Serial.print(final_states[i]); Serial.println();
   }
 
   //perform the test
@@ -78,7 +83,7 @@ void stream_test() {
   if (response == 'y') {
 
     test_row = 0;
-    test_column = 0;
+    test_col = 0;
     final_state = 0;
     setup_time = 0;
     hold_time = 0;
@@ -95,11 +100,11 @@ void stream_test() {
     Serial.print("_"); Serial.print(chip_number);
 
     //generate row, column, final_state... pairs
-    for(int i = 0; i < numElem; i++) {
+    for (int i = 0; i < numElem; i++) {
       Serial.print("_E"); Serial.print(i);
 
       test_row = elemTests[i][0];
-      test_column = elemTest[i][1];
+      test_col = elemTests[i][1];
       final_state = final_states[i];
       setup_time = elemTiming[i][0];
       hold_time = elemTiming[i][1];
@@ -168,7 +173,6 @@ void stream_test() {
 
 
 
-  }
 }
 
 //multiline test to take the three arrays and use them to activate fluidic elements
@@ -178,23 +182,23 @@ void multiline_test() {
   Serial.print("Resetting all the lines"); Serial.println();
 
   //loop through each element of the tests
-  for(int i = 0; i < numElem; i++) {
-  //assign ts, th, and tpw for the current test as well as current row and final state
-  test_row = numElem[i][0];
-  test_col = numElem[i][1];
-  final_state = final_states[i];
+  for (int i = 0; i < numElem; i++) {
+    //assign ts, th, and tpw for the current test as well as current row and final state
+    test_row = elemTests[i][0];
+    test_col = elemTests[i][1];
+    final_state = final_states[i];
 
-  Serial.print("Element "); Serial.print(i);
-  Serial.print("in row "); Serial.print(elemTests[i][0]);
-  Serial.print("column "); Serial.print(elemTests[i][1]);
-  Serial.print("to a state of "); Serial.print(!final_state[i]); Serial.println();
+    Serial.print("Element "); Serial.print(i);
+    Serial.print("in row "); Serial.print(elemTests[i][0]);
+    Serial.print("column "); Serial.print(elemTests[i][1]);
+    Serial.print("to a state of "); Serial.print(!final_states[i]); Serial.println();
 
 
-  //assign the test cell to the cellTest object
-  FC.testCell(test_row,test_col,final_state);
+    //assign the test cell to the cellTest object
+    FC.testCell(test_row, test_col, final_state);
 
-  //reset the lines
-  FC.reset(0);
+    //reset the lines
+    FC.reset(0);
 
   }
 
@@ -203,20 +207,20 @@ void multiline_test() {
   enter_to_advance();
 
   //loop through each element of the tests
-  for(int i = 0; i < numElem; i++) {
-  //assign ts, th, and tpw for the current test as well as current row and final state
-  test_row = numElem[i][0];
-  test_col = numElem[i][1];
-  final_state = final_states[i];
-  setup_time = elemTiming[i][0];
-  hold_time = elemTiming[i][1];
-  pulse_width = elemTiming[i][2];
+  for (int i = 0; i < numElem; i++) {
+    //assign ts, th, and tpw for the current test as well as current row and final state
+    test_row = elemTests[i][0];
+    test_col = elemTests[i][1];
+    final_state = final_states[i];
+    setup_time = elemTiming[i][0];
+    hold_time = elemTiming[i][1];
+    pulse_width = elemTiming[i][2];
 
-  //assign the test cell to the cellTest object
-  FC.testCell(test_row,test_col,final_state);
+    //assign the test cell to the cellTest object
+    FC.testCell(test_row, test_col, final_state);
 
-  //activate a timing trigger test on that elements
-  FC.timing_trigger(setup_time,pulse_width,hold_time);
+    //activate a timing trigger test on that elements
+    FC.timing_trigger(setup_time, pulse_width, hold_time);
 
   }
 
