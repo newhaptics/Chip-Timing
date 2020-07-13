@@ -244,7 +244,7 @@ void cellTest::timing_trigger(signed long ts, signed long tpw, signed long th) {
 //Same as timing trigger but dual
 //ts is setup time; tpw is the pulse width time; th is the hold time
 //takes in microsecond delay
-void dual_timing_trigger(signed long ts, signed long tpw, signed long th){
+void cellTest::dual_timing_trigger(signed long ts, signed long tpw, signed long th){
   //boolean values to determine if each pulse has ran
   bool setup_ran = false;
   bool pulse_start = false;

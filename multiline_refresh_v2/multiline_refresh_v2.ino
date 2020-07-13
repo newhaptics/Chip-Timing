@@ -11,7 +11,7 @@ const int numElem = 5;
 const int elemTests[numElem][2] =
 //{{0, 0}, {1, 0}, {2, 0}, {3, 0}, {4, 0}};
 {{0, 0}, {1, 0}, {2, 0}, {3, 0}, {4, 0}};
-//{5, 0}, {6, 0}, {7, 0}, {8, 0}, {9, 0}, 
+//{5, 0}, {6, 0}, {7, 0}, {8, 0}, {9, 0},
 //{5, 1}, {6, 1}, {7, 1}, {8, 1}, {9, 1}};
 
 //final states
@@ -20,11 +20,11 @@ const int final_states[numElem][2] =
 //1, 0, 1, 0, 1, 0, 1, 0, 1, 0};
 
 //timing for each element
-const signed long elemTiming[numElem][3] = 
+const signed long elemTiming[numElem][3] =
 //{{-20, 70, 60}, {-20, 70, 60}, {-20, 70, 60}, {-20, 70, 60}, {-20, 70, 60},
 //{-14, 32, 30}, {-10, 33, 30}, {-10, 34, 30}, {-5, 33, 30}, {-15, 37, 30}};
 {{-4, 40, 30}, {-4, 40, 30}, {-4, 40, 30}, {-4, 40, 30}, {-4, 40, 30}};
-//{{-14, 32, 30}, {-10, 33, 30}, {-10, 34, 30}, {-5, 33, 30}, {-15, 37, 30}, 
+//{{-14, 32, 30}, {-10, 33, 30}, {-10, 34, 30}, {-5, 33, 30}, {-15, 37, 30},
 //{-14, 32, 30}, {-10, 33, 30}, {-10, 34, 30}, {-5, 33, 30}, {-15, 37, 30},
 //{-14, 32, 30}, {-10, 33, 30}, {-10, 34, 30}, {-5, 33, 30}, {-15, 37, 30},
 //{-14, 32, 30}, {-10, 33, 30}, {-10, 34, 30}, {-5, 33, 30}, {-15, 37, 30}};
@@ -95,7 +95,7 @@ void stream_test() {
   Serial.print("press enter to begin test"); Serial.println();
 
   enter_to_advance();
-  
+
   //perform the test
   multiline_test();
 
@@ -109,7 +109,8 @@ void stream_test() {
 
     test_row = 0;
     test_col = 0;
-    final_state = 0;
+    final_state[0] = 0;
+    final_state[1] = 0;
     setup_time = 0;
     hold_time = 0;
     pulse_width = 0;
@@ -130,14 +131,15 @@ void stream_test() {
 
       test_row = elemTests[i][0];
       test_col = elemTests[i][1];
-      final_state = final_states[i];
+      final_state[0] = final_states[i][0];
+      final_state[1] = final_states[i][1];
       setup_time = elemTiming[i][0];
       hold_time = elemTiming[i][1];
       pulse_width = elemTiming[i][2];
 
       Serial.print("_r"); Serial.print(test_row + 1);
       Serial.print("_c"); Serial.print(test_col + 1);
-      Serial.print("_in"); Serial.print(final_state);
+      Serial.print("_in"); Serial.print(final_state[0]);
       Serial.print("_s"); Serial.print(setup_time);
       Serial.print("_h"); Serial.print(hold_time);
       Serial.print("_p"); Serial.print(pulse_width);
@@ -162,7 +164,7 @@ void stream_test() {
 
 
       multiline_reset();
-      
+
       Serial.println(F(" --------- "));
       Serial.println(F("Once you click 'enter' in the Serial Monitor a countdown from 5 will start, Press 'Finish' on 0 in AmScope"));
 
@@ -173,7 +175,7 @@ void stream_test() {
         Serial.println(i);
         delay(500);
       }
-      
+
       multiline_test();
 
       delay(2000);
@@ -219,7 +221,8 @@ void multiline_reset() {
     //assign ts, th, and tpw for the current test as well as current row and final state
     test_row = elemTests[i][0];
     test_col = elemTests[i][1];
-    final_state = final_states[i];
+    final_state[0] = final_states[i][0];
+    final_state[1] = final_states[i][1];
 
 
     Serial.print("Element "); Serial.print(i + 1);
@@ -244,14 +247,15 @@ void multiline_test() {
   unsigned long elapsed_time;
   unsigned long start_time;
   unsigned long tot_time = 0;
- 
+
   //start_time = micros();
   //loop through each element of the tests
   for (int i = 0; i < numElem; i++) {
     //assign ts, th, and tpw for the current test as well as current row and final state
     test_row = elemTests[i][0];
     test_col = elemTests[i][1];
-    final_state = final_states[i];
+    final_state[0] = final_states[i][0];
+    final_state[1] = final_states[i][1];
     setup_time = elemTiming[i][0] * 1000;
     hold_time = elemTiming[i][1] * 1000;
     pulse_width = elemTiming[i][2] * 1000;
@@ -266,9 +270,9 @@ void multiline_test() {
 
     //activate a timing trigger test on that elements
     start_time = micros();
-    
+
     FC.dual_timing_trigger(setup_time, pulse_width, hold_time);
-    
+
     elapsed_time = micros() - start_time;
     elapsed_time = elapsed_time / 1000;
     tot_time = tot_time + elapsed_time;
