@@ -9,9 +9,9 @@ class cellTest {
 
 
 public:
-  cellTest(int row, int column, int final_state);
+  cellTest(int row, int column, int final_state1, int final_state2);
 
-  void testCell(int row, int column, int final_state);
+  void testCell(int row, int column, int final_state1, int final_state2);
 
   void cell_setup();
 
@@ -28,6 +28,8 @@ public:
   void reset(boolean serial_out);
 
   void timing_trigger(signed long ts, signed long tpw, signed long th);
+
+  void dual_timing_trigger(signed long ts, signed long tpw, signed long th);
 
   const int hi_pressure = 17;
 
@@ -48,7 +50,8 @@ private:
 
   //int num_gauges = sizeof(gauge) / sizeof(gauge[0]);
 
-  bool final_state = 1;
+  bool final_state1 = 1;
+  bool final_state2 = 1;
 
   unsigned long current_time;
   unsigned long start_time;
