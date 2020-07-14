@@ -122,10 +122,9 @@ void stream_test() {
     Serial.println(F(" -------------------- "));
     Serial.println(F("Video Format: .avi"));
     Serial.println("Filename: ");
-    Serial.println();
-    Serial.print("S"); Serial.print(numElem*2);
     Serial.print(chip_version);
     Serial.print("_"); Serial.print(chip_number);
+    Serial.print("_"); Serial.print("S"); Serial.print(numElem*2);
 
     test_row = elemTests[numElem/4][0];
     test_col = elemTests[numElem/2][1];
@@ -138,20 +137,68 @@ void stream_test() {
     int myrand = test_row + test_col + final_state[0] + final_state[1] + setup_time + hold_time + pulse_width;
     int theirrand = random(1000) + random(500) + random(50);
 
-      Serial.print(myrand);
-
       Serial.print("_");
-
+      Serial.print(myrand);
+      Serial.print("_");
       Serial.print(theirrand);
 
 
     Serial.print("_");
+    Serial.print("D");
     Serial.println();
     Serial.println(F("Encoder: none"));
     Serial.println(F("Quality: doesn't matter"));
     Serial.println(F("Time Limit: 2 seconds"));
     Serial.println(F("Frame Rate: 1/16 (slider all the way to the left)"));
     Serial.println(F(" -------------------- "));
+
+    Serial.println(F("Open a txt file and store this test name inside"));
+    Serial.println("Testname: ");
+    Serial.print(chip_version);
+    Serial.print("_"); Serial.print(chip_number);
+    Serial.println();
+    Serial.print("S"); Serial.print(numElem*2); Serial.print("_");
+
+    //generate row, column, final_state... pairs
+    for (int i = 0; i < numElem; i++) {
+      Serial.print("_E"); Serial.print(i + 1);
+
+      test_row = elemTests[i][0];
+      test_col = elemTests[i][1];
+      final_state[0] = final_states[i][0];
+      setup_time = elemTiming[i][0];
+      hold_time = elemTiming[i][1];
+      pulse_width = elemTiming[i][2];
+
+      Serial.print("_r"); Serial.print(test_row + 1);
+      Serial.print("_c"); Serial.print(test_col + 1);
+      Serial.print("_in"); Serial.print(final_state[0]);
+      Serial.print("_s"); Serial.print(setup_time);
+      Serial.print("_h"); Serial.print(hold_time);
+      Serial.print("_p"); Serial.print(pulse_width);
+
+      Serial.print("_E"); Serial.print((i + 1) + numElem);
+
+      test_row = elemTests[i][0];
+      test_col = elemTests[i][1] + 1;
+      final_state[1] = final_states[i][1];
+      setup_time = elemTiming[i][0];
+      hold_time = elemTiming[i][1];
+      pulse_width = elemTiming[i][2];
+
+      Serial.print("_r"); Serial.print(test_row + 1);
+      Serial.print("_c"); Serial.print(test_col + 1);
+      Serial.print("_in"); Serial.print(final_state[1]);
+      Serial.print("_s"); Serial.print(setup_time);
+      Serial.print("_h"); Serial.print(hold_time);
+      Serial.print("_p"); Serial.print(pulse_width);
+
+    }
+
+
+
+    Serial.print("_");
+    Serial.print("E");
     Serial.println();
     Serial.println(F("Press enter to begin test."));
 
