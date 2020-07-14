@@ -63,6 +63,8 @@ void setup() {
 
   initialize();
 
+  randomSeed(analogRead(0));
+
 }
 
 void loop() {
@@ -105,6 +107,7 @@ void stream_test() {
   response = Serial.read();
   serialFlush();
 
+  int trial_num = random(1000) + random(500) + random(20);
   if (response == 'y') {
 
     test_row = 0;
@@ -120,31 +123,27 @@ void stream_test() {
     Serial.println(F("Video Format: .avi"));
     Serial.println("Filename: ");
     Serial.println();
-    Serial.print("S"); Serial.print(numElem);
-    Serial.print("_");
+    Serial.print("S"); Serial.print(numElem*2);
     Serial.print(chip_version);
     Serial.print("_"); Serial.print(chip_number);
 
-    //generate row, column, final_state... pairs
-    for (int i = 0; i < numElem; i++) {
-      Serial.print("_E"); Serial.print(i);
+    test_row = elemTests[numElem/4][0];
+    test_col = elemTests[numElem/2][1];
+    final_state[0] = final_states[1][0];
+    final_state[1] = final_states[1][1];
+    setup_time = elemTiming[numElem*2][0];
+    hold_time = elemTiming[numElem*4/3][1];
+    pulse_width = elemTiming[numElem][2];
 
-      test_row = elemTests[i][0];
-      test_col = elemTests[i][1];
-      final_state[0] = final_states[i][0];
-      final_state[1] = final_states[i][1];
-      setup_time = elemTiming[i][0];
-      hold_time = elemTiming[i][1];
-      pulse_width = elemTiming[i][2];
+    int myrand = test_row + test_col + final_state[0] + final_state[1] + setup_time + hold_time + pulse_width;
+    int theirrand = random(1000) + random(500) + random(50);
 
-      Serial.print("_r"); Serial.print(test_row + 1);
-      Serial.print("_c"); Serial.print(test_col + 1);
-      Serial.print("_in"); Serial.print(final_state[0]);
-      Serial.print("_s"); Serial.print(setup_time);
-      Serial.print("_h"); Serial.print(hold_time);
-      Serial.print("_p"); Serial.print(pulse_width);
+      Serial.print(myrand);
 
-    }
+      Serial.print("_");
+
+      Serial.print(theirrand);
+
 
     Serial.print("_");
     Serial.println();

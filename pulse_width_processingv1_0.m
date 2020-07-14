@@ -1,16 +1,15 @@
 %clear previous program and enter the required directories
-clear all
-vid_dir = 'C:\Users\NewHapticsUser2\Documents\AmScope';
+vid_dir = 'C:\Users\alex\Documents\FC_videos';
 RAM_dir = 'R:\';
-file_dir = 'C:\Users\NewHapticsUser2\Documents\MATLAB';
+file_dir = 'C:\Users\alex\Dropbox\Chip Timing';
 
 cd(vid_dir)
 addpath(RAM_dir)  
 addpath(file_dir)
 
-save_data = 0;  % 0 to turn off save-data
+save_data = 1;  % 0 to turn off save-data
 %% take in a video file and create an object
-filename = '200611104719';
+filename = 'S5_M3AR_1_E0_r1_c1_in1_s-4_h40_p30_E1_r2_c1_in1_s-4_h40_p30_E2_r3_c1_in1_s-4_h40_p30_E3_r4_c1_in1_s-4_h40_p30_E4_r5_c1_in1_s-4_h40_p30__20200713T152806';
 video_ext = '.avi';
 
 if isfile([RAM_dir '/' filename video_ext])
@@ -23,7 +22,7 @@ video = VideoReader([vid_dir '/' filename video_ext]);
 %%
 % Label the areas of interest in order
 % name={'led_timer','gate_led','gate','in','out'};
-name={'led_timer'};
+name = {'gate LED', 'col 1', 'col 2', 'row 1', 'row 2', 'row 3', 'row 4', 'row 5', 'out 1 1', 'out 2 1', 'out 3 1', 'out 4 1', 'out 5 1', 'out 1 1', 'out 1 2', 'out 1 3', 'out 1 4', 'out 1 5'};
 
 
 % Number of areas of interest based on labels
@@ -59,8 +58,10 @@ if strcmp(reply,'y')
         close(thisfig)
         thisfig = figure(1);
         imshow(this_frame);
+        set(gcf, 'units', 'normalized', 'position', [0 0 1 1]);
         disp(['For region: ' name(i)]);
 
+        
         [reg,posMatrix(i,:)]= imcrop(this_frame);
 
     %% For making multiple crop regions per area of interest
@@ -75,6 +76,7 @@ if strcmp(reply,'y')
     %     end
 
     end
+    save([vid_dir '/' 'posMatrix_temp' '.mat'],'posMatrix');
     close all;
 
 elseif strcmp(reply,'n')
@@ -139,16 +141,17 @@ for k=1:outputs
     subplot(outputs,1,k);
     hold on;
     plot(t,avgBright(:,k)-min(avgBright(:,k)),'r','LineWidth',1.5);
-    plot(t,df(:,k),'b-');
+%     plot(t,df(:,k),'b-');
     set(gca,'fontsize', 16);
     grid on
-    ylabel(name(k));
+    ylbl = ylabel(name(k));
     ylim([0 max(avgBright(:,k))-min(avgBright(:,k))]);
+    xlim([.15 .5])
     if  k~=outputs
         set(gca,'XTick',[]);    
     end
     hold off;
-
+    set(get(gca,'YLabel'),'Rotation',360,'HorizontalAlignment','right');
     if k==outputs
         xlabel('Time (s)');
     end
@@ -165,6 +168,6 @@ end
 
 %%
 if save_data==1
-    save([vid_dir '/' filename '.mat']); % Save the data
-    save([file_dir '/' filename '.mat']); % Save the data
+    save([vid_dir '/' filename '-' datestr(now) '.mat']); % Save the data
+    save([file_dir '/' filename '-' datestr(now) '.mat']); % Save the data
 end
