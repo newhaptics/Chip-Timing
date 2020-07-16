@@ -147,7 +147,7 @@ void cellTest::reset(boolean serial_out) {
   if (!serial_out) Serial.println(F("Resetting..."));
   set_valve(row[test_row], 0);
   set_valve(col[test_col], !final_state1);
-  set_valve(col[test_col + 1], !final_state2);
+  //set_valve(col[test_col + 1], !final_state2);
   delay(250);
   set_valve(row[test_row], 1);
   delay(250);
@@ -166,17 +166,18 @@ void cellTest::timing_trigger(signed long ts, signed long tpw, signed long th) {
   bool pulse_end = false;
   bool hold_ran = false;
 
+
   //determine trigger times relative to the negative edge of pulse
   unsigned long elapsed_time;
-  unsigned long pw_trigger_time = 50;
+  unsigned long pw_trigger_time = 500000;
   unsigned long setup_trigger_time = pw_trigger_time - ts;
   unsigned long hold_trigger_time = pw_trigger_time + th;
   unsigned long pw_end_time = pw_trigger_time + tpw;
 
-  //  Serial.println(pw_trigger_time);
-  //  Serial.println(setup_trigger_time);
-  //  Serial.println(hold_trigger_time);
-  //  Serial.println(pw_end_time);
+   // Serial.println(pw_trigger_time);
+   // Serial.println(setup_trigger_time);
+   // Serial.println(hold_trigger_time);
+   // Serial.println(pw_end_time);
 
   digitalWrite(led, LOW);
   this->start_time = micros();
@@ -184,7 +185,7 @@ void cellTest::timing_trigger(signed long ts, signed long tpw, signed long th) {
   //maybe change? start time after delay
 
   //delay on the front end
-  //delay(100);
+  delay(100);
 
   //wait for time to elapse and trigger elements on the proper times
   while (!(setup_ran && pulse_start && pulse_end && hold_ran)) {
@@ -195,46 +196,34 @@ void cellTest::timing_trigger(signed long ts, signed long tpw, signed long th) {
     if ((elapsed_time >= setup_trigger_time) && !setup_ran) {
       trigger_setup(final_state1);
       setup_ran = true;
-      Serial.print("time elapsed for data line start "); Serial.print(elapsed_time / 1000);
-      Serial.print(" milliseconds");
-      Serial.println();
     }
 
     //trigger the pulse at the trigger time
     if ((elapsed_time >= pw_trigger_time) && !pulse_start) {
       trigger_pulse();
       pulse_start = true;
-      Serial.print("time elapsed for gate line start "); Serial.print(elapsed_time / 1000);
-      Serial.print(" milliseconds");
-      Serial.println();
     }
 
     //trigger hold change after hold time
     if ((elapsed_time >= hold_trigger_time) && !hold_ran) {
       trigger_hold(final_state1);
       hold_ran = true;
-      Serial.print("time elapsed for data line end "); Serial.print(elapsed_time / 1000);
-      Serial.print(" milliseconds");
-      Serial.println();
     }
 
     //end pulse after pulse trigger time
     if ((elapsed_time >= pw_end_time) && !pulse_end) {
       end_pulse();
       pulse_end = true;
-      Serial.print("time elapsed for gate line end "); Serial.print(elapsed_time / 1000);
-      Serial.print(" milliseconds");
-      Serial.println();
     }
 
   }
 
   //delay longer on the backend if the final state is 0
-  // if (final_state) {
-  //   delay(200);
-  // } else {
-  //   delay(600);
-  // }
+  if (final_state1) {
+    delay(200);
+  } else {
+    delay(600);
+  }
 
   //all triggers done
   digitalWrite(led, HIGH);

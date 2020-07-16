@@ -24,7 +24,7 @@ int test_col = 0;
 int final_state = 0;
 
 //create a cellTest object
-cellTest FC(test_row,test_col,final_state);
+cellTest FC(test_row,test_col,final_state, 0);
 
 void setup() {
   TCCR1B = TCCR1B & B11111000 | B00000101; // for PWM frequency of 30.64 Hz
@@ -70,7 +70,7 @@ void timing_tests() {
   //cycle through testing 1 to 0 and 0 to 1
   for (long k = 0; k <= 1; k++) {
     final_state = test_order[k];
-    FC.testCell(test_row, test_col, final_state);
+    FC.testCell(test_row, test_col, final_state, 0);
     if (final_state == 1) {
       //        pulse_width = 50000 - i * 5000;
       pulse_width = 30000;// - i * 20000;
@@ -336,7 +336,8 @@ void cycle(boolean serial_out) {
     h = hold_time + i * 1000;
     pw = pulse_width;
     FC.timing_trigger(s, pw, h);
-    FC.reset(1);
+    Serial.println("test done");
+    FC.reset(0);
   }
 
 }
